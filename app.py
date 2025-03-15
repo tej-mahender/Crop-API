@@ -18,16 +18,6 @@ print("✅ Crop Model loaded successfully!")
 with open('crop_scaler.pkl', 'rb') as scaler_file:
     crop_scaler = pickle.load(scaler_file)
 
-# Load the trained model
-with open('yield_model.pkl', 'rb') as model_file:
-    yield_model = pickle.load(model_file)
-print("✅ Yield Model loaded successfully!")
-
-# Load the trained scaler
-with open('yield_scaler.pkl', 'rb') as scaler_file:
-    yield_scaler = pickle.load(scaler_file)
-
-
 # Define feature column names manually
 feature_columns = ['N', 'P', 'K', 'temperature', 'humidity', 'ph', 'rainfall']
 
@@ -71,54 +61,62 @@ def predict():
         return jsonify({'error': str(e)})
 
 
-# Manually recreate label encoders
-season_labels = ["Kharif", "Rabi", "Summer", "Whole Year", "Winter", "Autumn"]
-crop_labels = ['rice', 'maize', 'chickpea', 'kidneybeans', 'pigeonpeas', 'mothbeans',
-               'mungbean', 'blackgram', 'lentil', 'pomegranate', 'banana', 'mango',
-               'grapes', 'watermelon', 'apple', 'orange', 'papaya', 'coconut', 'cotton',
-               'jute', 'coffee']
+# # Load the trained model
+# with open('yield_model.pkl', 'rb') as model_file:
+#     yield_model = pickle.load(model_file)
+# print("✅ Yield Model loaded successfully!")
 
-# Create label encoders and fit them with the known categories
-season_encoder = LabelEncoder()
-season_encoder.fit(season_labels)
+# # Load the trained scaler
+# with open('yield_scaler.pkl', 'rb') as scaler_file:
+#     yield_scaler = pickle.load(scaler_file)
+# # Manually recreate label encoders
+# season_labels = ["Kharif", "Rabi", "Summer", "Whole Year", "Winter", "Autumn"]
+# crop_labels = ['rice', 'maize', 'chickpea', 'kidneybeans', 'pigeonpeas', 'mothbeans',
+#                'mungbean', 'blackgram', 'lentil', 'pomegranate', 'banana', 'mango',
+#                'grapes', 'watermelon', 'apple', 'orange', 'papaya', 'coconut', 'cotton',
+#                'jute', 'coffee']
 
-crop_encoder = LabelEncoder()
-crop_encoder.fit(crop_labels)
+# # Create label encoders and fit them with the known categories
+# season_encoder = LabelEncoder()
+# season_encoder.fit(season_labels)
 
-@app.route('/predict_yield', methods=['POST'])
-def predict_yield():
-    try:
-        data = request.json
-        crop_year = int(data['Crop_Year'])
-        season = data['Season'].strip()
-        crop = data['Crop'].strip().lower()
-        area = float(data['Area'])
+# crop_encoder = LabelEncoder()
+# crop_encoder.fit(crop_labels)
 
-        # Validate inputs
-        if season not in season_labels:
-            return jsonify({"error": f"Invalid season '{season}'. Available: {season_labels}"}), 400
-        if crop not in crop_labels:
-            return jsonify({"error": f"Invalid crop '{crop}'. Available: {crop_labels}"}), 400
+# @app.route('/predict_yield', methods=['POST'])
+# def predict_yield():
+#     try:
+#         data = request.json
+#         crop_year = int(data['Crop_Year'])
+#         season = data['Season'].strip()
+#         crop = data['Crop'].strip().lower()
+#         area = float(data['Area'])
 
-        # Encode categorical variables
-        season_encoded = season_encoder.transform([season])[0]
-        crop_encoded = crop_encoder.transform([crop])[0]
+#         # Validate inputs
+#         if season not in season_labels:
+#             return jsonify({"error": f"Invalid season '{season}'. Available: {season_labels}"}), 400
+#         if crop not in crop_labels:
+#             return jsonify({"error": f"Invalid crop '{crop}'. Available: {crop_labels}"}), 400
 
-        # Prepare input data
-        input_data = np.array([[crop_year, season_encoded, crop_encoded, area]])
+#         # Encode categorical variables
+#         season_encoded = season_encoder.transform([season])[0]
+#         crop_encoded = crop_encoder.transform([crop])[0]
 
-        # Standardize input
-        input_scaled = yield_scaler.transform(input_data)
+#         # Prepare input data
+#         input_data = np.array([[crop_year, season_encoded, crop_encoded, area]])
 
-        # Predict yield
-        predicted_yield = yield_model.predict(input_scaled)
+#         # Standardize input
+#         input_scaled = yield_scaler.transform(input_data)
 
-        return jsonify({
-            "Predicted_Yield": round(predicted_yield[0], 2)
-        })
+#         # Predict yield
+#         predicted_yield = yield_model.predict(input_scaled)
 
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+#         return jsonify({
+#             "Predicted_Yield": round(predicted_yield[0], 2)
+#         })
+
+#     except Exception as e:
+#         return jsonify({"error": str(e)}), 500
     
 
 # Run Flask server
