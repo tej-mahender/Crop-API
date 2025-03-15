@@ -2,38 +2,12 @@ from flask import Flask, request, jsonify
 import pickle
 import numpy as np
 import pandas as pd
-import requests
-import gdown
-import os
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from flask_cors import CORS
 
 # Initialize Flask app
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
-
-# Google Drive File IDs (Replace with your actual file IDs)
-GDRIVE_FILES = {
-    "crop_model": "11hWX83YVKzD4M7SEP-NF8oz2mD7IyKRQ",  # Replace with your crop model file ID
-    "crop_scaler": "1Ro8b2oZ7_-hIynsgMZ91Mza5yi3mvT_v", # Replace with your scaler1.pkl file ID
-    "yield_model": "1qjFB4oWQgMNhQKsLurMAcIIg9vPbUXOp", # Replace with your yield model file ID
-    "yield_scaler": "1XhPBDQxxLLOgZcnU2sOBkVIZUtf6w6Qg" # Replace with your scaler2.pkl file ID
-}
-
-# Function to download a file from Google Drive using gdown
-def download_from_gdrive(file_id, filename):
-    url = f"https://drive.google.com/uc?id={file_id}"
-    gdown.download(url, filename, quiet=False)
-
-# Ensure model files are available
-for key, file_id in GDRIVE_FILES.items():
-    local_filename = f"{key}.pkl"
-    if not os.path.exists(local_filename):
-        print(f"Downloading {local_filename}...")
-        download_from_gdrive(file_id, local_filename)
-    else:
-        print(f"✅ {local_filename} already exists.")
-
 
 # Load the trained model
 with open('crop_model.pkl', 'rb') as model_file:
