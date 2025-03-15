@@ -20,7 +20,6 @@ GDRIVE_FILES = {
     "yield_scaler": "1XhPBDQxxLLOgZcnU2sOBkVIZUtf6w6Qg" # Replace with your scaler2.pkl file ID
 }
 
-
 # Function to download a file from Google Drive using gdown
 def download_from_gdrive(file_id, filename):
     url = f"https://drive.google.com/uc?id={file_id}"
